@@ -1,10 +1,10 @@
-package com.craftinginterpreters.lox; 
+package com.craftinginterpreters.lox;
 
+import static com.craftinginterpreters.lox.TokenType.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-
 
 class Scanner {
   private final String source;
@@ -101,8 +101,9 @@ class Scanner {
       } else if (isAlpha(c)){
         identifier();
       }
-       else {
-        Lox.error(line,  "Unexpected character.");
+      else {
+      Lox.error(line,  "Unexpected character.");
+      }
       break; 
     }
   }
@@ -114,7 +115,6 @@ class Scanner {
     TokenType type = keywords.get(text);
     if (type == null) type = IDENTIFIER;
     addToken(type);
-    addToken(IDENTIFIER);
   }
 
   private void number() {

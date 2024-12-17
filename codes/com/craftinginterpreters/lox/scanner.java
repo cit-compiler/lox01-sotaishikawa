@@ -1,4 +1,4 @@
-package com.craftinginterpreters.lox;
+package com.craftinginterpreters.lox; 
 
 import static com.craftinginterpreters.lox.TokenType.*;
 import java.util.ArrayList;
@@ -131,22 +131,27 @@ class Scanner {
 
   private void string() {
     while (peek() != '"' && !isAtEnd()) {
-      if (peek() == '\n') line++;
+      if (peek() == '\n') line++; 
+      if (peek() == '\\' && peekNext() == '"') { 
+        advance();
+      }
       advance();
     }
-
+  
     if (isAtEnd()) {
       Lox.error(line, "Unterminated string.");
       return;
     }
-
+  
     // The closing ".
     advance();
-
-    // Trim the surrounding quotes.
-    String value = source.substring(start + 1, current - 1);
+  
+    // Trim the surrounding quotes and unescape \".
+    String rawValue = source.substring(start + 1, current - 1);
+    String value = rawValue.replace("\\\"", "\""); 
     addToken(STRING, value);
   }
+  
 
   
 

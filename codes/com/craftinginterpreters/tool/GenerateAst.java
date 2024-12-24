@@ -6,68 +6,68 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GenerateAst {
-  public static void main(String[] args) throws IOException {
-    if (args.length != 1) {
-      System.err.println("Usage: generate_ast <output directory>");
-      System.exit(64);
-    }
-    String outputDir = args[0];
+    public static void main(String[] args) throws IOException {
+        if (args.length != 1) {
+            System.err.println("Usage: generate_ast <output directory>");
+            System.exit(64);
+        }
+        String outputDir = args[0];
 
-    defineAst(outputDir, "Expr", Arrays.asList(
-      "Binary   : Expr left, Token operator, Expr right",
-      "Grouping : Expr expression",
-      "Literal  : Object value",
-      "Unary    : Token operator, Expr right"
-    ));
-  }
-
-  // Defines the base class (Expr) and subclasses.
-  private static void defineAst(String outputDir, String baseName, List<String> types)
-      throws IOException {
-    String path = outputDir + "/" + baseName + ".java";
-    PrintWriter writer = new PrintWriter(path, "UTF-8");
-
-    writer.println("package com.craftinginterpreters.lox;");
-    writer.println();
-    writer.println("import java.util.List;");
-    writer.println();
-    writer.println("abstract class " + baseName + " {");
-
-    // Create the AST classes.
-    for (String type : types) {
-      String className = type.split(":")[0].trim();
-      String fields = type.split(":")[1].trim(); 
-      defineType(writer, baseName, className, fields);
+        defineAst(outputDir, "Expr", Arrays.asList(
+            "Binary   : Expr left, Token operator, Expr right",
+            "Grouping : Expr expression",
+            "Literal  : Object value",
+            "Unary    : Token operator, Expr right"
+        ));
     }
 
-    writer.println("}");
-    writer.close();
-  }
+    // Define the base class (Expr) and subclasses.
+    private static void defineAst(String outputDir, String baseName, List<String> types)
+            throws IOException {
+        String path = outputDir + "/" + baseName + ".java";
+        PrintWriter writer = new PrintWriter(path, "UTF-8");
 
-  // Creates the individual class for each AST node.
-  private static void defineType(PrintWriter writer, String baseName,
-      String className, String fieldList) {
-    writer.println("  static class " + className + " extends " +
-        baseName + " {");
+        writer.println("package com.craftinginterpreters.lox;");
+        writer.println();
+        writer.println("import java.util.List;");
+        writer.println();
+        writer.println("abstract class " + baseName + " {");
 
-    // Constructor.
-    writer.println("    " + className + "(" + fieldList + ") {");
+        // Create the AST classes.
+        for (String type : types) {
+            String className = type.split(":")[0].trim();
+            String fields = type.split(":")[1].trim(); 
+            defineType(writer, baseName, className, fields);
+        }
 
-    // Store parameters in fields.
-    String[] fields = fieldList.split(", ");
-    for (String field : fields) {
-      String name = field.split(" ")[1];
-      writer.println("      this." + name + " = " + name + ";");
+        writer.println("}");
+        writer.close();
     }
 
-    writer.println("    }");
+    // Create the individual class for each AST node.
+    private static void defineType(PrintWriter writer, String baseName,
+            String className, String fieldList) {
+        writer.println("  static class " + className + " extends " +
+            baseName + " {");
 
-    // Fields.
-    writer.println();
-    for (String field : fields) {
-      writer.println("    final " + field + ";");
+        // Constructor.
+        writer.println("    " + className + "(" + fieldList + ") {");
+
+        // Store parameters in fields.
+        String[] fields = fieldList.split(", ");
+        for (String field : fields) {
+            String name = field.split(" ")[1];
+            writer.println("      this." + name + " = " + name + ";");
+        }
+
+        writer.println("    }");
+
+        // Fields.
+        writer.println();
+        for (String field : fields) {
+            writer.println("    final " + field + ";");
+        }
+
+        writer.println("  }");
     }
-
-    writer.println("  }");
-  }
 }

@@ -79,12 +79,10 @@ class Parser {
             return new Expr.Grouping(expr);
         }
 
-        // Error handling
         throw error(peek(), "Expect expression.");
     }
 
-    // Synchronizing function to recover from errors
-    private void synchronize() {
+    private void synchronaize() {
         advance();
 
         while (!isAtEnd()) {

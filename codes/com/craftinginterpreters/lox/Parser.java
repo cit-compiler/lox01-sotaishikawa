@@ -1,9 +1,11 @@
 package com.craftinginterpreters.lox;
 
-import java.util.List;
 import static com.craftinginterpreters.lox.TokenType.*;
+import java.util.List;
 
 class Parser {
+    private static class ParseError extends
+     RuntimeException {}
     private final List<Token> tokens;
     private int current = 0;
 
@@ -76,27 +78,15 @@ class Parser {
             consume(RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
         }
-        return null;
+
+        // Error handling
+        throw error(peek(), "Expect expression.");
     }
 
-    // トークンを消費するメソッド
-    private Token consume(TokenType type, String message) {
-        if (check(type)) return advance();
-        throw error(peek(), message);
-    }
-
-    // エラーメッセージを生成するメソッド
-    private ParseError error(Token token, String message) {
-        Lox.error(token, message);
-        return new ParseError();
-    }
-
-    // パーサエラーを表すクラス
-    private static class ParseError extends RuntimeException {}
-
-    // 同期を行うメソッド
+    // Synchronizing function to recover from errors
     private void synchronize() {
         advance();
+
         while (!isAtEnd()) {
             if (previous().type == SEMICOLON) return;
 
@@ -116,6 +106,16 @@ class Parser {
         }
     }
 
+    // Function to start parsing
+    Expr parse() {
+        try {
+            return expression();
+        } catch (ParseError error) {
+            return null;
+        }
+    }
+
+    // Helper functions to manage token iteration
     private boolean match(TokenType... types) {
         for (TokenType type : types) {
             if (check(type)) {
@@ -146,5 +146,19 @@ class Parser {
 
     private Token previous() {
         return tokens.get(current - 1);
+    }
+
+    private void consume(TokenType type, String message) {
+        if (check(type)) {
+            advance();
+            return;
+        }
+
+        throw error(peek(), message);
+    }
+
+    private ParseError error(Token token, String message) {
+        Lox.error(token, message);
+        return new ParseError();
     }
 }
